@@ -1,0 +1,444 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>点是否在多边形内的程序实现 | Miller&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Miller Zhang">
+    
+
+    
+    <meta name="description" content="PNPolyPNPoly是由W. Randolph Franklin提出的一种在二维空间较为高效地判断点是否在多边形内的算法，算法具有很好的通用性，对凸多边形、凹多边形以及含有空洞的多边形均适用。最小外接矩形范围判断123if (p.x &amp;lt; minX || p.x &amp;gt; maxX || p.y &amp;lt; minY || p.y &amp;gt; maxY) &amp;#123;    // 点在多边形之">
+<meta property="og:type" content="article">
+<meta property="og:title" content="点是否在多边形内的程序实现">
+<meta property="og:url" content="http://riyueshi.github.io/2015/06/16/is_point_in_polygon/index.html">
+<meta property="og:site_name" content="Miller's Blog">
+<meta property="og:description" content="PNPolyPNPoly是由W. Randolph Franklin提出的一种在二维空间较为高效地判断点是否在多边形内的算法，算法具有很好的通用性，对凸多边形、凹多边形以及含有空洞的多边形均适用。最小外接矩形范围判断123if (p.x &amp;lt; minX || p.x &amp;gt; maxX || p.y &amp;lt; minY || p.y &amp;gt; maxY) &amp;#123;    // 点在多边形之">
+<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/PNPloyoutline.jpg">
+<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/PNPloyfilled.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="点是否在多边形内的程序实现">
+<meta name="twitter:description" content="PNPolyPNPoly是由W. Randolph Franklin提出的一种在二维空间较为高效地判断点是否在多边形内的算法，算法具有很好的通用性，对凸多边形、凹多边形以及含有空洞的多边形均适用。最小外接矩形范围判断123if (p.x &amp;lt; minX || p.x &amp;gt; maxX || p.y &amp;lt; minY || p.y &amp;gt; maxY) &amp;#123;    // 点在多边形之">
+
+    
+    <link rel="alternative" href="/atom.xml" title="Miller&#39;s Blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/ico.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Miller&#39;s Blog" title="Miller&#39;s Blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Miller&#39;s Blog">Miller&#39;s Blog</a></h1>
+				<h2 class="blog-motto">当你的才华还撑不起你的梦想时，你就应该静下心来学习</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:riyueshi.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/06/16/is_point_in_polygon/" title="点是否在多边形内的程序实现" itemprop="url">点是否在多边形内的程序实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Miller Zhang" target="_blank" itemprop="author">Miller Zhang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-06-16T07:02:13.693Z" itemprop="datePublished"> 发表于 2015-06-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PNPoly"><span class="toc-number">1.</span> <span class="toc-text">PNPoly</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于扫描填充多边形的方法"><span class="toc-number">2.</span> <span class="toc-text">基于扫描填充多边形的方法</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="PNPoly">PNPoly</h2><p>PNPoly是由W. Randolph Franklin提出的一种在二维空间较为高效地判断点是否在多边形内的算法，算法具有很好的通用性，对凸多边形、凹多边形以及含有空洞的多边形均适用。<br><strong>最小外接矩形范围判断</strong><br><figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (p.x <span class="variable">&lt; minX || p.x &gt;</span> <span class="keyword">max</span>X || p.y <span class="variable">&lt; minY || p.y &gt;</span> <span class="keyword">max</span>Y) &#123;</span><br><span class="line">    // 点在多边形之外</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先判断点是否在多边形的最小外接矩形之内，该步骤不是必须的，但是可以有效避免不必要的计算。<br><strong>核心算法</strong><br><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pnpoly</span><span class="params">(<span class="keyword">int</span> nvert, <span class="keyword">float</span> *vertx, <span class="keyword">float</span> *verty, <span class="keyword">float</span> testx, <span class="keyword">float</span> testy)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i, j, c = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>, j = nvert-<span class="number">1</span>; i &lt; nvert; j = i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> ( ((verty[i]&gt;testy) != (verty[j]&gt;testy)) &amp;&amp;</span><br><span class="line">	 (testx &lt; (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )</span><br><span class="line">       c = !c;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>   
+<p>针对每一个点，算法遍历多边形相邻的每两个顶点（即一条边），假如待判断点满足以下两个条件即改变点是否在多边形内的状态标识<code>c</code>：   </p>
+<ol>
+<li>待判断点的Y坐标在点i和点j的Y坐标范围之内   </li>
+<li>待判断点的X坐标在点i和点j连线之下<br>遍历所有的边之后假如以上两个条件同时满足奇数次则该带判断点位于多边形之内，否则位于多边形之外。<br>算法复杂度为O(n)，其中n为多边形的顶点个数。   </li>
+</ol>
+<p>算法主页： <a href="http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html" target="_blank" rel="external">PNPoly</a><br>相关出版物：Haines, Eric, “Point in Polygon Strategies,” Graphics Gems IV, ed. Paul Heckbert, Academic Press, p. 24-46, 1994.  </p>
+<hr>
+<h2 id="基于扫描填充多边形的方法">基于扫描填充多边形的方法</h2><p>若针对同一多边形有大量的点需要判断是否在该多边形的话上述方法计算量将会很大，可以借助计算机图形学中的多边形填充方法，采用影像辅助判断点是否在多边形内，基于voronoi图的影像镶嵌（正射影像制作）是该方法典型的运用。<br>首先计算多边形的最小外接矩形，采用openCV绘制一张与外接矩形大小的黑色图像（图像分辨率可自定义，为适应之后的填充算法创建的影像的大小在扫描方向上需多加1个像素），在图像上绘制多边形的边。<br><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">image</span> = cv::Mat::zeros(<span class="variable">height</span>,<span class="variable">width</span>,CV_8UC1);</span><br><span class="line"><span class="built_in">line</span>(<span class="built_in">image</span>,pointi,pointj,<span class="number">255</span>);</span><br></pre></td></tr></table></figure></p>
+<p>得到如下图像：<img src="http://7xjq8m.com1.z0.glb.clouddn.com/PNPloyoutline.jpg" alt="绘制多边形边">对上面的影像进行填充：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">for <span class="list">(<span class="keyword">int</span> i = <span class="number">0</span><span class="comment">; i &lt; height; i++)</span></span><br><span class="line">&#123;</span><br><span class="line">	int trans_count<span class="list">(<span class="number">0</span>)</span><span class="comment">;</span></span><br><span class="line">	bool is_in_pologon<span class="list">(<span class="keyword">false</span>)</span><span class="comment">;</span></span><br><span class="line">	int trans_index<span class="list">(<span class="number">0</span>)</span><span class="comment">;</span></span><br><span class="line">	for <span class="list">(<span class="keyword">int</span> j = <span class="number">0</span><span class="comment">; j &lt; width-1; j++)</span></span><br><span class="line">	&#123;</span><br><span class="line">		//cv:<span class="keyword">:Vec3b</span> a = image.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,j)</span><span class="comment">;</span></span><br><span class="line">		if <span class="list">(<span class="keyword">image</span>.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,j)</span>==white_pixl&amp;&amp;image.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,j+1)</span>!=white_pixl)</span></span><br><span class="line">		&#123;</span><br><span class="line">			is_in_pologon = !is_in_pologon<span class="comment">;</span></span><br><span class="line">			trans_index = j<span class="comment">;</span></span><br><span class="line">			trans_count++<span class="comment">;</span></span><br><span class="line">		&#125;</span><br><span class="line">		if <span class="list">(<span class="keyword">is_in_pologon</span>)</span></span><br><span class="line">		&#123;</span><br><span class="line">			image.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,j)</span> = <span class="number">255</span><span class="comment">;</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	if <span class="list">(<span class="keyword">is_in_pologon</span>)</span></span><br><span class="line">	&#123;</span><br><span class="line">		image.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,width-1)</span><span class="comment">;</span></span><br><span class="line">	&#125;</span><br><span class="line">	if <span class="list">(<span class="keyword">trans_count</span> == <span class="number">1</span>)</span></span><br><span class="line">	&#123;	</span><br><span class="line">		for <span class="list">(<span class="keyword">int</span> j = width-1<span class="comment">; j &gt; trans_index; j--)</span></span><br><span class="line">		&#123;	 </span><br><span class="line">			image.at&lt;cv:<span class="keyword">:uchar&gt;</span><span class="list">(<span class="keyword">i</span>,j)</span> = <span class="number">0</span><span class="comment">;</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span></span></span></span><br></pre></td></tr></table></figure></p>
+<p>填充后影像如下：<img src="http://7xjq8m.com1.z0.glb.clouddn.com/PNPloyfilled.jpg" alt="扫描填充影像">将待判断点的坐标换算到影像上若得到相应的像素值为255则该点在这个多边形之内，若得相应像素值为0则该点在多边形外。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/摄影测量/">摄影测量</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/影像拼接/">影像拼接</a><a href="/tags/点与多边形拓扑关系/">点与多边形拓扑关系</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://riyueshi.github.io/2015/06/16/is_point_in_polygon/" data-title="点是否在多边形内的程序实现 | Miller&#39;s Blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/04/18/hello-world/"  title="Hello World">
+ <strong>下一篇：</strong><br/> 
+ <span>Hello World
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PNPoly"><span class="toc-number">1.</span> <span class="toc-text">PNPoly</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于扫描填充多边形的方法"><span class="toc-number">2.</span> <span class="toc-text">基于扫描填充多边形的方法</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/摄影测量/" title="摄影测量">摄影测量<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/影像拼接/" title="影像拼接">影像拼接<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/点与多边形拓扑关系/" title="点与多边形拓扑关系">点与多边形拓扑关系<sup>1</sup></a></li>
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Miller Zhang in CSU. <br/>
+			welcome to my blog  ง •̀_•́)ง </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:imriyueshi@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="Miller Zhang">Miller Zhang</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fb4b22fc51ae54e8331746f39627584f1' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

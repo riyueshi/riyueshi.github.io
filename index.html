@@ -81,6 +81,68 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/06/16/is_point_in_polygon/" title="点是否在多边形内的程序实现" itemprop="url">点是否在多边形内的程序实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Miller Zhang" target="_blank" itemprop="author">Miller Zhang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-06-16T07:02:13.693Z" itemprop="datePublished"> 发表于 2015-06-16</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="PNPoly">PNPoly</h2><p>PNPoly是由W. Randolph Franklin提出的一种在二维空间较为高效地判断点是否在多边形内的算法，算法具有很好的通用性，对凸多边形、凹多边形以及含有空洞的多边形均适用。<br><strong>最小外接矩形范围判断</strong><br><figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (p.x <span class="variable">&lt; minX || p.x &gt;</span> <span class="keyword">max</span>X || p.y <span class="variable">&lt; minY || p.y &gt;</span> <span class="keyword">max</span>Y) &#123;</span><br><span class="line">    // 点在多边形之外</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先判断点是否在多边形的最小外接矩形之内，该步骤不是必须的，但是可以有效避免不必要的计算。<br><strong>核心算法</strong><br><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pnpoly</span><span class="params">(<span class="keyword">int</span> nvert, <span class="keyword">float</span> *vertx, <span class="keyword">float</span> *verty, <span class="keyword">float</span> testx, <span class="keyword">float</span> testy)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i, j, c = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>, j = nvert-<span class="number">1</span>; i &lt; nvert; j = i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> ( ((verty[i]&gt;testy) != (verty[j]&gt;testy)) &amp;&amp;</span><br><span class="line">	 (testx &lt; (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )</span><br><span class="line">       c = !c;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2015/06/16/is_point_in_polygon/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/摄影测量/">摄影测量</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/影像拼接/">影像拼接</a><a href="/tags/点与多边形拓扑关系/">点与多边形拓扑关系</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/04/18/hello-world/" title="Hello World" itemprop="url">Hello World</a>
   </h1>
   <p class="article-author">By
@@ -142,8 +204,42 @@
 <aside class="clearfix">
 
   
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/摄影测量/" title="摄影测量">摄影测量<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
 
   
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/影像拼接/" title="影像拼接">影像拼接<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/点与多边形拓扑关系/" title="点与多边形拓扑关系">点与多边形拓扑关系<sup>1</sup></a></li>
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
+		</ul>
+</div>
+
 
   <div class="linkslist">
   <p class="asidetitle">友情链接</p>
