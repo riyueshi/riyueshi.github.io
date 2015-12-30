@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>Graph-Cut算法简介 | Miller&#39;s Blog</title>
+    <title>image dodging | Miller&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Miller Zhang">
@@ -13,18 +13,13 @@
     
     <meta name="description">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Graph-Cut算法简介">
-<meta property="og:url" content="http://riyueshi.github.io/2015/10/07/graph_cut/index.html">
+<meta property="og:title" content="image dodging">
+<meta property="og:url" content="http://riyueshi.github.io/2015/12/30/image_dodging/index.html">
 <meta property="og:site_name" content="Miller's Blog">
 <meta property="og:description">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_fate_a.png">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_undirected_graph.PNG">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_directed_graph.PNG">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_flow_intro.PNG">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_steps.PNG">
-<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_result.PNG">
+<meta property="og:image" content="http://7xjq8m.com1.z0.glb.clouddn.com/ref.jpg">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Graph-Cut算法简介">
+<meta name="twitter:title" content="image dodging">
 <meta name="twitter:description">
 
     
@@ -85,14 +80,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/10/07/graph_cut/" title="Graph-Cut算法简介" itemprop="url">Graph-Cut算法简介</a>
+      <a href="/2015/12/30/image_dodging/" title="image dodging" itemprop="url">image dodging</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Miller Zhang" target="_blank" itemprop="author">Miller Zhang</a>
 		
   <p class="article-time">
-    <time datetime="2015-10-07T11:43:57.361Z" itemprop="datePublished"> 发表于 2015-10-07</time>
+    <time datetime="2015-12-30T09:24:59.567Z" itemprop="datePublished"> 发表于 2015-12-30</time>
     
   </p>
 </header>
@@ -101,13 +96,15 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Max-flow/Min-cut"><span class="toc-number">2.</span> <span class="toc-text">Max-flow/Min-cut</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#introduction"><span class="toc-number">1.</span> <span class="toc-text">introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#command_line"><span class="toc-number">2.</span> <span class="toc-text">command line</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#comments"><span class="toc-number">3.</span> <span class="toc-text">comments</span></a></li></ol>
 		
 		</div>
 		
-		<p><img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_fate_a.png" alt="cover"><br><a id="more"></a> </p>
-<h2 id="基本概念">基本概念</h2><p><strong>数据结构—图</strong>：一个图<em>G(V,E)</em>是由一系列的顶点（<em>vertices，V</em>）和边（<em>edges，E</em>）构成的数据结构，给每条边赋予一定的数值代表该边的权值（使用中可以用于表示特定的意义），这样的图成为网络（<em>weighted graph</em>），边没有方向的图称为无向图（<em>undirected graph</em>），其边用<em>(Vi,Vj)</em>表示，边有方向的图成为有向图（<em>directed graph</em>），其边用<em><vi,vj></vi,vj></em>表示。如下图所示：<img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_undirected_graph.PNG" alt="无向图">  <img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_directed_graph.PNG" alt="有向图"><br><strong>图中的相关概念</strong>：<br>源点(source)：图中有一个点很特殊，只出不进，叫做源点。<br>汇点(sink)：图中与源点相对应的另一个特殊点，只进不出，叫做汇点。<br>容量(capacity)和流量(flow)：每条有向边上有两个量，容量和流量，从i到j的容量通常用c[i,j]表示,流量则通常是f[i,j]。<br>最大流(max-flow)：从源点出发，选择一条路径到达汇点，其中经过的所有边中容量最小的边的容量即为该路径的最大流。如下图中由顶点1经顶点2、4到达顶点6的最大流为1。<br><img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_flow_intro.PNG" alt="图示例">    </p>
-<h2 id="Max-flow/Min-cut">Max-flow/Min-cut</h2><p>graph-cut算法是基于有向图的一种最优分界线的自动生成算法，常用于前景背景分割，立体视觉，纹理合成及图像拼接等领域。graph-cut算法中要求所处理的图为有向图，可将无向图中正反两个方向都赋予相同的权值即可得到可采用graph-cut算法处理的有向图，其算法流程可以简单表示如<br>1.Find the path from source to sink<br>2.While (path exists)<br>3.flow += maximum capacity in the path<br>4.Build the residual graph (“subtract” the flow)<br>5.Find the path in the residual graph<br>6.End<br><img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_steps.PNG" alt="算法示意图"><br>其中步骤1即为图的遍历；步骤4中的残余图是在沿源点到达汇点的边的权值减去该路径的最大流，同时在其反方向即该路径上从汇点到达源点的路径上边的权值加上该路径的最大流；<br>当循环结束后图被分割为两部分，一部分是源点可以到达的顶点，另一部分是源点不可到达的顶点，这样就将影像分为了两个部分，其分界处成为cut即分界线。此处将原始图中边的上的权值视为开销的话该算法得到的cut分界线就是使开销最小的全局最优的结果之一（结果并不一定是唯一的）。<br><img src="http://7xjq8m.com1.z0.glb.clouddn.com/graph_cut_result.PNG" alt="分割结果"><br>为便于理解可以将源点视为水源，将汇点视为水槽，边的权值看作水管的粗细，每段水管只能用一次，只有水源和水槽可以存储水，水管不具备储水能力(在图示例中有水从顶点2流到顶点4就有相应的水从顶点4流回顶点2，即f[2,4]=0），这样当水槽里蓄到一定量的水后就再也没有可以由水源到达水槽可用的水管了。<br>相关资料：<br><a href="http://pub.ist.ac.at/~vnk/software/maxflow-v3.03.src.zip" target="_blank" rel="external">maxfow/mincut代码</a><br><a href="http://www.robots.ox.ac.uk/~lubor/graphcut.ppt" target="_blank" rel="external">grahp-cut算法介绍ppt（牛津大学）</a><br><a href="http://www.coe.utah.edu/~cs7640/readings/graph_cuts_intro.pdf" target="_blank" rel="external">garph-cut算法介绍资料</a><br>相关论文：<br>“Graphcut Textures - Image and Video Synthesis Using Graph Cuts”<br>“Graph Cuts in Vision and Graphics: Theories and Applications”<br>“Interactive Graph Cuts for Optimal Boundary &amp; Region Segmentation of Objects in N-D Images”<br>“Optimal Seamline Detection for Multiple Image Mosaicking via Graph Cuts”<br>“Graph Cut Algorithms in Vision Graphics and Machine Learning”<br>“Fast image blending using watersheds and graph cuts”<br>““GrabCut” — Interactive Foreground Extraction using Iterated Graph Cuts”</p>
+		<p><img src="http://7xjq8m.com1.z0.glb.clouddn.com/ref.jpg" alt="cover"><br><a id="more"></a> </p>
+<h2 id="introduction">introduction</h2><p>this code implement a simple image dodging process, which is implement by hist matching on light channel of HLS color space. firstly, convert the RBG image to HLS image color space,then implement the histogram matching on L(light) channel.</p>
+<h2 id="command_line">command line</h2><p>the .exe file accept 4 strings as parameters:<br>argv[1]  -the standard image name;<br>argv[2]  -image type.;<br>argv[3]  -source images folder name;<br>argv[4]  -result images folder name;   </p>
+<p>use example:<br>image_dodging.exe “D:\work_path\standard_image.jpg” “jpg” “D:\work_path” “D:\work_path\out”<br>this code doesn’t create path or folder, so make sure that the source images folder and the result images folder are already exit in you computer.<br>you can double click the run.bat file to run a simple example.   </p>
+<h2 id="comments">comments</h2><p>this code is tested on windows 7 + vs2013 + opencv 3.0 and a opencv_world300.dll is necessary, which included in the opencv 3.0 package. the .exe file is a x64 release version, make sure your “opencv_world300.dll” is the corresponding one.the opencv package is available <a href="http://sourceforge.net/projects/opencvlibrary/files/opencv-win/3.0.0/opencv-3.0.0.exe/download" target="_blank" rel="external">here</a>.<br>this code has enable openMP process which can accelerate the process, at the same time, a high CPU occupied will needed. if you don’t want use the openMP process comments the line “#pragma omp parallel for”. And if you want to enable openMP process in you project you have to turn the use openMP attribute on for you visual studio project.<br>It would be great to give the code a star on my github project if you think this code help.<br>project site: <a href="https://github.com/riyueshi/image_dodging.git" target="_blank" rel="external">https://github.com/riyueshi/image_dodging.git</a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -115,13 +112,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/摄影测量与计算机视觉/">摄影测量与计算机视觉</a>
+  <a class="article-category-link" href="/categories/code/">code</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/Graph-Cut/">Graph-Cut</a><a href="/tags/maxflow-mincut/">maxflow/mincut</a><a href="/tags/影像拼接/">影像拼接</a><a href="/tags/镶嵌线自动生成/">镶嵌线自动生成</a>
+  <span></span> <a href="/tags/histogram-matching/">histogram matching</a><a href="/tags/source-code/">source code</a>
   </div>
 
 </div>
@@ -130,7 +127,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://riyueshi.github.io/2015/10/07/graph_cut/" data-title="Graph-Cut算法简介 | Miller&#39;s Blog" data-tsina="null" class="share clearfix">
+	  <div data-url="http://riyueshi.github.io/2015/12/30/image_dodging/" data-title="image dodging | Miller&#39;s Blog" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -143,19 +140,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2015/12/30/image_dodging/" title="image dodging">
-  <strong>上一篇：</strong><br/>
-  <span>
-  image dodging</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2015/10/07/is_point_in_polygon/"  title="判断点是否在多边形内的程序实现">
+<a href="/2015/10/07/graph_cut/"  title="Graph-Cut算法简介">
  <strong>下一篇：</strong><br/> 
- <span>判断点是否在多边形内的程序实现
+ <span>Graph-Cut算法简介
 </span>
 </a>
 </div>
@@ -170,7 +159,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Max-flow/Min-cut"><span class="toc-number">2.</span> <span class="toc-text">Max-flow/Min-cut</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#introduction"><span class="toc-number">1.</span> <span class="toc-text">introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#command_line"><span class="toc-number">2.</span> <span class="toc-text">command line</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#comments"><span class="toc-number">3.</span> <span class="toc-text">comments</span></a></li></ol>
  
   </div>
 
